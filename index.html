@@ -544,10 +544,11 @@
           <div id="dPlayers"></div>
         </div>
 
-        <div class="note"><span class="ico">⚖️</span>Le coppie le forma l'app quando siete in 4: il più forte gioca col meno forte, partita equilibrata.</div>
+        <div class="note"><span class="ico">⚖️</span>Ti iscrivi da solo o in coppia con un amico. In campo l'app propone le coppie più equilibrate — e potete rimescolarle, anche una diversa a ogni set.</div>
         <div class="note"><span class="ico">🕑</span>Se non siete in 4 entro 2 ore dall'inizio, la partita si annulla senza addebito.</div>
 
         <button class="cta" id="dCta">Unisciti · sei il quarto</button>
+        <button class="cta ghost" id="dCtaPair" style="margin-top:10px;">👥 Unisciti in coppia con un amico</button>
       </div>
     </section>
 
@@ -571,7 +572,7 @@
 
         <div class="block">
           <h3>Quota</h3>
-          <div class="sum-row"><span class="k">Campo 1h30, diviso in 4</span><span class="v">8,00 €</span></div>
+          <div class="sum-row"><span class="k" id="cQuotaLbl">Campo 1h30, diviso in 4</span><span class="v" id="cQuota">8,00 €</span></div>
           <div class="sum-row"><span class="k">Pagamento · carta •••• 4421</span><button class="chg">Cambia</button></div>
         </div>
 
@@ -921,6 +922,8 @@
       cta.textContent = (m.players.length === 3) ? 'Unisciti · sei il quarto' : 'Unisciti';
       cta.classList.remove('ghost');
     }
+    document.getElementById('dCtaPair').style.display =
+      (!m.full && 4 - m.players.length >= 2) ? '' : 'none';
     go('dettaglio');
   }
 
@@ -931,6 +934,8 @@
   });
 
   // ---- schermata 3: conferma iscrizione ----
+  let pairJoin = false;
+
   function openConferma(){
     const m = MATCHES[currentId];
     document.getElementById('cWhen').textContent = m.day + ', ' + m.time;
@@ -938,10 +943,17 @@
     document.getElementById('cFascia').textContent = m.fmin.toFixed(1) + '–' + m.fmax.toFixed(1);
     const cTitle = document.getElementById('cTitle');
     const cCta = document.getElementById('cCta');
+    document.getElementById('cQuotaLbl').textContent = pairJoin ? 'Campo 1h30, 2 quote' : 'Campo 1h30, diviso in 4';
+    document.getElementById('cQuota').textContent = pairJoin ? '16,00 €' : '8,00 €';
     if (m.full){
       cTitle.textContent = "Entra in lista d'attesa";
       document.getElementById('cPlayers').textContent = '4 su 4 · completa';
       cCta.textContent = 'Mettimi in lista · gratis';
+    } else if (pairJoin){
+      cTitle.textContent = 'Confermate i vostri 2 posti';
+      document.getElementById('cPlayers').textContent =
+        m.players.length + ' su 4 · +2 con voi' + (m.players.length === 2 ? ' = completa' : '');
+      cCta.textContent = 'Conferma i nostri 2 posti · 16 €';
     } else {
       cTitle.textContent = 'Conferma il tuo posto';
       document.getElementById('cPlayers').textContent =
@@ -951,7 +963,8 @@
     go('conferma');
   }
 
-  document.getElementById('dCta').addEventListener('click', openConferma);
+  document.getElementById('dCta').addEventListener('click', () => { pairJoin = false; openConferma(); });
+  document.getElementById('dCtaPair').addEventListener('click', () => { pairJoin = true; openConferma(); });
 
   document.getElementById('cCta').addEventListener('click', () => {
     const m = MATCHES[currentId];
@@ -959,6 +972,14 @@
       document.getElementById('fTitle').textContent = "Sei in lista d'attesa";
       document.getElementById('fSub').textContent =
         m.day + ', ' + m.time + ' — ' + m.venue + '. Ti avvisiamo subito se si libera un posto.';
+    } else if (pairJoin && m.players.length === 2){
+      document.getElementById('fTitle').textContent = 'Siete dentro: siete in 4!';
+      document.getElementById('fSub').textContent =
+        m.day + ', ' + m.time + ' — ' + m.venue + '. Partita confermata, vi aspettano in campo.';
+    } else if (pairJoin){
+      document.getElementById('fTitle').textContent = 'Siete dentro!';
+      document.getElementById('fSub').textContent =
+        m.day + ', ' + m.time + ' — ' + m.venue + '. Vi avvisiamo appena siete in 4.';
     } else if (m.players.length === 3){
       document.getElementById('fTitle').textContent = 'Sei dentro: siete in 4!';
       document.getElementById('fSub').textContent =
