@@ -1,0 +1,164 @@
+﻿<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+<title>QUARTO × la tua scuola — cosa ci guadagni</title>
+</head>
+<body><style>
+  :root{
+    --bg:#F1E7D2; --surface:#FFFFFF; --surface-2:#FAF4E8; --ink:#1E2A33; --muted:#5C6B76;
+    --line:#E4D9C2; --coral:#D6431F; --blue:#156FA3; --blue-bg:#DFEFF9;
+    --ok:#1F7A4D; --shadow:0 2px 10px rgba(30,42,51,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10161C; --surface:#1A232C; --surface-2:#151D25; --ink:#EDF3F7; --muted:#93A3AE;
+      --line:#2A3641; --coral:#E85433; --blue:#5FB0E5; --blue-bg:#14384E;
+      --ok:#4CBF87; --shadow:0 2px 12px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F1E7D2; --surface:#FFFFFF; --surface-2:#FAF4E8; --ink:#1E2A33; --muted:#5C6B76;
+    --line:#E4D9C2; --coral:#D6431F; --blue:#156FA3; --blue-bg:#DFEFF9;
+    --ok:#1F7A4D; --shadow:0 2px 10px rgba(30,42,51,.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161C; --surface:#1A232C; --surface-2:#151D25; --ink:#EDF3F7; --muted:#93A3AE;
+    --line:#2A3641; --coral:#E85433; --blue:#5FB0E5; --blue-bg:#14384E;
+    --ok:#4CBF87; --shadow:0 2px 12px rgba(0,0,0,.35);
+  }
+
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  .wrap{max-width:680px; margin:0 auto; padding:30px 18px 60px;}
+
+  .brand{font-size:15px; font-weight:900; font-style:italic; letter-spacing:-.3px;}
+  .brand i{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--coral); font-style:normal;}
+  .brand small{font-style:normal; font-weight:700; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-size:10px; margin-left:8px;}
+
+  h1{margin:14px 0 8px; font-size:30px; line-height:1.15; letter-spacing:-.6px; text-wrap:balance;}
+  .lead{margin:0 0 6px; font-size:16.5px; color:var(--muted); text-wrap:balance;}
+  .lead b{color:var(--ink);}
+
+  h2{
+    font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin:34px 0 12px;
+  }
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px;}
+  .card{
+    background:var(--surface); border-radius:16px; padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .card .e{font-size:26px;}
+  .card b{display:block; margin-top:8px; font-size:16.5px; letter-spacing:-.2px;}
+  .card p{margin:6px 0 0; font-size:14px; color:var(--muted);}
+
+  .ask{display:flex; flex-wrap:wrap; gap:10px;}
+  .ask div{
+    flex:1; min-width:170px; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:14px; padding:14px; font-size:14px;
+  }
+  .ask div b{display:block; font-size:14.5px; margin-bottom:2px;}
+  .ask div span{color:var(--muted); font-size:13px;}
+
+  .secret{
+    background:var(--blue-bg); border-radius:16px; padding:18px;
+    font-size:15px;
+  }
+  .secret b{color:var(--blue);}
+
+  .math{
+    background:var(--surface); border-radius:16px; padding:20px; box-shadow:var(--shadow);
+    text-align:center;
+  }
+  .math .row{
+    display:flex; justify-content:center; align-items:baseline; gap:10px; flex-wrap:wrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .math .n{font-size:30px; font-weight:800; letter-spacing:-.5px;}
+  .math .op{font-size:18px; color:var(--muted); font-weight:700;}
+  .math .res{font-size:34px; font-weight:900; color:var(--coral); letter-spacing:-1px;}
+  .math .lbl{font-size:12px; color:var(--muted); margin-top:8px;}
+  .math .cap{font-size:14.5px; margin-top:12px;}
+
+  .cta-box{
+    margin-top:36px; background:var(--ink); color:var(--bg);
+    border-radius:18px; padding:22px; text-align:center;
+  }
+  .cta-box b{font-size:18px; letter-spacing:-.2px;}
+  .cta-box p{margin:6px 0 0; font-size:14px; opacity:.75;}
+
+  footer{margin-top:28px; font-size:11.5px; color:var(--muted); text-align:center;}
+</style>
+
+<div class="wrap">
+  <div class="brand">QUARTO<i></i><small>proposta per la scuola</small></div>
+
+  <h1>Centinaia di allievi.<br>Campi vuoti a metà giornata.</h1>
+  <p class="lead">QUARTO riempie le ore morte dei tuoi campi con <b>partite 2vs2 equilibrate</b>: giocatori dello stesso livello, anche sconosciuti tra loro, messi insieme dall'app.</p>
+
+  <h2>Cosa ci guadagna la scuola</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="e">💶</div>
+      <b>Ore morte che diventano incasso</b>
+      <p>Le ore in cui oggi i campi valgono zero si riempiono di partite prenotate e pagate. Nessun lavoro in più per voi: l'app trova i 4, il campo incassa.</p>
+    </div>
+    <div class="card">
+      <div class="e">🔁</div>
+      <b>Prenotazioni che si ripetono da sole</b>
+      <p>Quando una partita piace a tutti e 4, l'app propone: "Rigiochiamo? Stessa ora, stesso campo." I gruppi che funzionano diventano appuntamenti fissi settimanali.</p>
+    </div>
+    <div class="card">
+      <div class="e">🎓</div>
+      <b>La scuola come autorità del livello</b>
+      <p>I vostri coach conoscono il livello vero di centinaia di giocatori: la scuola certifica il livello iniziale, l'app lo tiene aggiornato. Il ruolo che Playtomic ha dovuto inventarsi coi "Leveling Club", voi ce l'avete già.</p>
+    </div>
+    <div class="card">
+      <div class="e">📣</div>
+      <b>Il vostro nome davanti a chi gioca</b>
+      <p>L'app gira col marchio della scuola. E chi entra per una partita e si diverte, prima o poi chiede una lezione: le partite portano allievi, non li portano via.</p>
+    </div>
+  </div>
+
+  <h2>Perché la gente torna</h2>
+  <div class="secret">
+    <b>Il cancello di livello:</b> in ogni partita entra solo chi è nella fascia giusta — né troppo sopra, né troppo sotto. Partite equilibrate = partite divertenti = gente che riprenota. Il livello si aggiorna da solo con un voto di 10 secondi a fine partita.
+  </div>
+
+  <h2>Cosa serve da voi</h2>
+  <div class="ask">
+    <div><b>🏖️ Le ore morte</b><span>i campi quando oggi sono vuoti</span></div>
+    <div><b>✍️ Il vostro nome</b><span>la credibilità che fa fidare la gente</span></div>
+    <div><b>💬 Un messaggio</b><span>nei gruppi WhatsApp delle classi</span></div>
+  </div>
+
+  <h2>Un esempio coi numeri</h2>
+  <div class="math">
+    <div class="row">
+      <span><span class="n">2</span> <span class="lbl">ore morte al giorno</span></span>
+      <span class="op">×</span>
+      <span><span class="n">32 €</span> <span class="lbl">a ora (8 € × 4)</span></span>
+      <span class="op">×</span>
+      <span><span class="n">24</span> <span class="lbl">giorni</span></span>
+    </div>
+    <div class="cap">≈ <span class="res">1.500 €</span> al mese <b>da un solo campo</b> — ore che oggi non incassano nulla.</div>
+    <div class="lbl">Numeri di esempio, da tarare insieme su prezzi e orari reali della scuola.</div>
+  </div>
+
+  <div class="cta-box">
+    <b>Il prototipo è pronto: 2 minuti sul telefono.</b>
+    <p>Nessun impegno — guardalo funzionare e dimmi cosa ne pensi.</p>
+  </div>
+
+  <footer>QUARTO · partite 2vs2 tra pari livello — proposta riservata, non distribuire</footer>
+</div>
+
+</body>
+</html>

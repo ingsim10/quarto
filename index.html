@@ -1,0 +1,1133 @@
+﻿<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏐</text></svg>">
+<title>QUARTO · prototipo beach volley 2v2</title>
+</head>
+<body><style>
+  :root{
+    --bg:#F1E7D2;
+    --surface:#FFFFFF;
+    --surface-2:#FAF4E8;
+    --ink:#1E2A33;
+    --muted:#5C6B76;
+    --line:#E4D9C2;
+    --coral:#D6431F;
+    --coral-ink:#B93715;
+    --blue:#156FA3;
+    --blue-bg:#DFEFF9;
+    --lock-bg:#EDE4D0;
+    --ok:#1F7A4D;
+    --shadow:0 2px 10px rgba(30,42,51,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10161C;
+      --surface:#1A232C;
+      --surface-2:#151D25;
+      --ink:#EDF3F7;
+      --muted:#93A3AE;
+      --line:#2A3641;
+      --coral:#E85433;
+      --coral-ink:#FF8264;
+      --blue:#5FB0E5;
+      --blue-bg:#14384E;
+      --lock-bg:#1F2831;
+      --ok:#4CBF87;
+      --shadow:0 2px 12px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F1E7D2; --surface:#FFFFFF; --surface-2:#FAF4E8; --ink:#1E2A33;
+    --muted:#5C6B76; --line:#E4D9C2; --coral:#D6431F; --coral-ink:#B93715;
+    --blue:#156FA3; --blue-bg:#DFEFF9; --lock-bg:#EDE4D0; --ok:#1F7A4D;
+    --shadow:0 2px 10px rgba(30,42,51,.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161C; --surface:#1A232C; --surface-2:#151D25; --ink:#EDF3F7;
+    --muted:#93A3AE; --line:#2A3641; --coral:#E85433; --coral-ink:#FF8264;
+    --blue:#5FB0E5; --blue-bg:#14384E; --lock-bg:#1F2831; --ok:#4CBF87;
+    --shadow:0 2px 12px rgba(0,0,0,.35);
+  }
+
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    max-width:430px; margin:0 auto; min-height:100dvh;
+    display:flex; flex-direction:column; position:relative;
+    background:var(--bg);
+  }
+  @media (min-width:500px){
+    body{padding:24px 0; background:color-mix(in srgb, var(--bg) 60%, var(--ink) 6%);}
+    .phone{min-height:calc(100dvh - 48px); border-radius:36px; overflow:hidden;
+      box-shadow:0 12px 48px rgba(0,0,0,.25); border:1px solid var(--line);}
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 20px 10px;
+  }
+  .wordmark{
+    font-size:24px; font-weight:900; font-style:italic;
+    letter-spacing:-0.5px; line-height:1; user-select:none;
+  }
+  .wordmark .dot{
+    display:inline-block; width:10px; height:10px; border-radius:50%;
+    background:var(--coral); margin-left:3px;
+  }
+  .lvl-pill{
+    display:flex; align-items:baseline; gap:5px;
+    background:var(--blue-bg); color:var(--blue);
+    border-radius:999px; padding:7px 13px;
+    font-weight:800; font-size:15px; font-variant-numeric:tabular-nums;
+  }
+  .lvl-pill small{font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;}
+
+  /* ---------- screens ---------- */
+  main{flex:1; display:flex; flex-direction:column; min-height:0;}
+  .screen{display:none; flex:1; flex-direction:column; min-height:0;}
+  .screen.active{display:flex;}
+  .scroll{
+    flex:1; overflow-y:auto; padding:0 16px;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));
+  }
+
+  .greet{padding:2px 4px 12px;}
+  .greet h1{margin:0; font-size:17px; font-weight:700; text-wrap:balance;}
+  .greet p{margin:3px 0 0; font-size:13px; color:var(--muted);}
+
+  /* chips */
+  .chips{
+    display:flex; gap:8px; overflow-x:auto; padding:2px 4px 14px;
+    scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; border:1px solid var(--line); background:var(--surface);
+    color:var(--muted); border-radius:999px; padding:8px 14px;
+    font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .chip.on{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+
+  .section-label{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:2px 4px 10px;
+  }
+  .section-label span{font-size:11px; font-weight:800; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted);}
+
+  /* ---------- match card ---------- */
+  .card{
+    background:var(--surface); border-radius:18px; box-shadow:var(--shadow);
+    padding:16px; margin-bottom:12px; cursor:pointer;
+    border:1px solid transparent;
+  }
+  .card:active{transform:scale(.985);}
+  .card-top{display:flex; justify-content:space-between; gap:12px; align-items:flex-start;}
+  .when .eyebrow{
+    font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--coral);
+  }
+  .when .time{
+    font-size:26px; font-weight:800; letter-spacing:-0.5px;
+    font-variant-numeric:tabular-nums; line-height:1.1;
+  }
+  .venue{margin-top:2px; font-size:14px; font-weight:600;}
+  .venue small{display:block; font-weight:500; color:var(--muted); font-size:12px;}
+  .fascia{
+    text-align:right; flex-shrink:0;
+    background:var(--blue-bg); color:var(--blue);
+    border-radius:12px; padding:8px 11px;
+  }
+  .fascia b{display:block; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .fascia span{font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;}
+
+  .players{display:flex; align-items:center; gap:10px; margin:14px 0 0;}
+  .ava{
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; color:#fff;
+    position:relative; flex-shrink:0;
+  }
+  .ava.c1{background:#156FA3;} .ava.c2{background:#3B8A66;} .ava.c3{background:#8A5FB0;} .ava.c4{background:#C07A2B;}
+  .ava em{
+    position:absolute; bottom:-7px; left:50%; transform:translateX(-50%);
+    font-style:normal; font-size:10px; font-weight:800;
+    background:var(--surface); color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:0 5px;
+    font-variant-numeric:tabular-nums;
+  }
+  .ava.empty{
+    background:transparent; border:2px dashed var(--line); color:var(--muted);
+    font-size:18px; font-weight:700;
+  }
+  .players .gap-note{margin-left:auto; font-size:12px; color:var(--muted); font-weight:600; text-align:right;}
+
+  .cta{
+    margin-top:16px; width:100%; border:0; border-radius:13px;
+    padding:13px; font-size:15px; font-weight:800; cursor:pointer;
+    background:var(--coral); color:#fff; font-family:inherit;
+  }
+  .cta.ghost{
+    background:transparent; color:var(--muted);
+    border:1.5px solid var(--line); font-weight:700;
+  }
+
+  /* locked card */
+  .card.locked{background:var(--lock-bg); box-shadow:none; border:1px dashed var(--line);}
+  .card.locked .when .time,.card.locked .venue{color:var(--muted);}
+  .card.locked .when .eyebrow{color:var(--muted);}
+  .card.locked .fascia{background:transparent; border:1px solid var(--line); color:var(--muted);}
+  .lock-note{
+    display:flex; gap:8px; align-items:center; margin-top:14px;
+    font-size:12.5px; color:var(--muted); font-weight:600;
+  }
+  .lock-note svg{flex-shrink:0;}
+  .card.locked.deny{animation:shake .3s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card.locked.deny{animation:none;}
+    .card:active{transform:none;}
+  }
+
+  /* ---------- schermata 2 · dettaglio ---------- */
+  .detail-hero{padding:6px 4px 4px;}
+  .tiles{display:flex; gap:10px; margin-top:12px;}
+  .tile{
+    flex:1; background:var(--surface); border-radius:14px; padding:12px 8px;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .tile b{display:block; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .tile span{font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
+  .block{
+    background:var(--surface); border-radius:18px; padding:16px;
+    margin-top:12px; box-shadow:var(--shadow);
+  }
+  .block h3{
+    margin:0; font-size:11px; font-weight:800; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .fends{
+    display:flex; justify-content:space-between; margin-top:12px;
+    font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums;
+  }
+  .fbar{height:10px; border-radius:999px; background:var(--blue-bg); position:relative; margin:6px 0 12px;}
+  .fbar .me{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:18px; height:18px; border-radius:50%;
+    background:var(--coral); border:3px solid var(--surface); box-shadow:var(--shadow);
+  }
+  .fcheck{font-size:13px; font-weight:700; color:var(--ok);}
+  .p-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .p-row:last-child{border-bottom:0; padding-bottom:2px;}
+  .p-row .ava{width:36px; height:36px; font-size:13px;}
+  .p-row .ava em{display:none;}
+  .p-name{flex:1; font-size:14.5px; font-weight:600;}
+  .p-row.free .p-name{color:var(--muted); font-weight:500;}
+  .p-lvl{
+    font-size:13px; font-weight:800; font-variant-numeric:tabular-nums;
+    background:var(--blue-bg); color:var(--blue); border-radius:999px; padding:4px 10px;
+  }
+  .note{display:flex; gap:8px; font-size:12.5px; color:var(--muted); margin-top:12px; padding:0 6px; line-height:1.45;}
+  .note .ico{flex-shrink:0;}
+  #dettaglio .cta{margin-top:16px;}
+
+  /* ---------- schermata 3 · conferma ---------- */
+  .sum-row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:9px 0; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .sum-row:last-child{border-bottom:0; padding-bottom:2px;}
+  .sum-row .k{color:var(--muted); font-weight:500; flex-shrink:0;}
+  .sum-row .v{font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
+  .sum-row .chg{
+    color:var(--blue); font-weight:700; font-size:13px; cursor:pointer;
+    background:none; border:0; padding:0; font-family:inherit;
+  }
+  .done-pop{
+    width:84px; height:84px; border-radius:50%;
+    background:var(--ok); color:#fff; font-size:42px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    animation:pop .4s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes pop{from{transform:scale(.4); opacity:0;} to{transform:scale(1); opacity:1;}}
+  @media (prefers-reduced-motion: reduce){ .done-pop{animation:none;} }
+  #fatto .cta{max-width:280px; margin-top:24px;}
+
+  /* ---------- schermata 4 · vota ---------- */
+  .pdots{display:flex; gap:6px; padding:0 4px 14px;}
+  .pdots span{width:8px; height:8px; border-radius:50%; background:var(--line);}
+  .pdots span.on{background:var(--coral);}
+  .teams{display:flex; justify-content:center; align-items:baseline; gap:10px;
+    font-size:14px; font-weight:600; color:var(--muted); text-align:center;}
+  .teams b{font-size:20px; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .score-big{
+    font-size:27px; font-weight:800; letter-spacing:-.5px; text-align:center;
+    font-variant-numeric:tabular-nums; margin:10px 0 6px;
+  }
+  .score-src{font-size:12px; color:var(--muted); text-align:center;}
+  .vq{font-size:15.5px; font-weight:700; margin:0 4px 12px; text-wrap:balance;}
+  .opt{
+    display:block; width:100%; text-align:left; font-family:inherit;
+    background:var(--surface); color:var(--ink);
+    border:1.5px solid var(--line); border-radius:14px;
+    padding:14px 16px; margin-bottom:10px;
+    font-size:15px; font-weight:600; cursor:pointer;
+  }
+  .opt.sel{border-color:var(--coral); color:var(--coral-ink); font-weight:800;}
+  .opt:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  .vdone{display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:24px;}
+  .vdone h2{margin:16px 0 6px; font-size:20px;}
+  .vdone p{margin:0; color:var(--muted); font-size:14px; max-width:34ch;}
+  .vdone .cta{max-width:280px; margin-top:24px;}
+  .voted{display:flex; gap:8px; align-items:center; color:var(--ok); font-weight:700; font-size:14px;}
+
+  /* ---------- volti e punteggio progressivo ---------- */
+  .face{flex-shrink:0; display:block;}
+  .f26{width:26px; height:26px;}
+  .f32{width:32px; height:32px;}
+  .f48{width:48px; height:48px;}
+  .ava svg,.face svg{width:100%; height:100%; display:block; border-radius:50%;}
+  .opt{display:flex; align-items:center; gap:12px;}
+  .teams{flex-wrap:wrap; row-gap:6px;}
+  .set-row{display:flex; align-items:center; justify-content:center; gap:10px; margin-top:12px;}
+  .set-lbl{width:44px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
+  .s-in{
+    width:58px; text-align:center; font-size:22px; font-weight:800;
+    font-variant-numeric:tabular-nums; padding:10px 0;
+    border:1.5px solid var(--line); border-radius:12px;
+    background:var(--surface); color:var(--ink); font-family:inherit;
+  }
+  .s-in:focus{outline:2px solid var(--blue); outline-offset:1px; border-color:var(--blue);}
+  .s-dash{font-weight:800; color:var(--muted);}
+  .cta:disabled{opacity:.45; cursor:default;}
+
+  /* ---------- schermata 5 · profilo ---------- */
+  .f72{width:72px; height:72px;}
+  .prof-head{display:flex; align-items:center; gap:14px; padding:14px 4px 4px;}
+  .prof-head h1{margin:0; font-size:20px;}
+  .prof-head p{margin:2px 0 0; font-size:13px; color:var(--muted);}
+  .rel-chip{
+    display:inline-block; margin-top:12px; background:var(--blue-bg); color:var(--blue);
+    font-size:12px; font-weight:700; border-radius:999px; padding:5px 12px;
+  }
+  .radar-note{font-size:12px; color:var(--muted); margin-top:3px;}
+  #radarBox{display:flex; justify-content:center; margin-top:6px;}
+  #radarBox svg{max-width:100%;}
+  .radar .ring{fill:none; stroke:var(--line); stroke-width:1;}
+  .radar .spoke{stroke:var(--line); stroke-width:1;}
+  .radar .poly{fill:var(--coral); fill-opacity:.16; stroke:var(--coral); stroke-width:2; stroke-linejoin:round;}
+  .radar .dot{fill:var(--coral); stroke:var(--surface); stroke-width:2;}
+  .radar text{font-family:inherit; font-size:12px; font-weight:700; fill:var(--muted);}
+  .radar text .n{fill:var(--ink); font-size:13px;}
+  .chips-badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .chips-badges span{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+    padding:6px 11px; font-size:12.5px; font-weight:700;
+  }
+  .m-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .m-row:last-child{border-bottom:0; padding-bottom:2px;}
+  .wl{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;
+  }
+  .wl.w{background:var(--ok);} .wl.l{background:var(--muted);}
+  .m-info{flex:1; font-size:13.5px; font-weight:600;}
+  .m-info small{display:block; font-size:12px; color:var(--muted); font-weight:500; font-variant-numeric:tabular-nums;}
+  .delta{font-size:13px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .delta.up{color:var(--ok);} .delta.dn{color:var(--muted);}
+
+  /* carta complimento */
+  .who-row .opt{margin-bottom:10px;}
+  .fund-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;}
+  .fund-grid .opt{margin-bottom:0;}
+
+  /* ---------- stub screens ---------- */
+  .stub{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:32px 32px calc(84px + env(safe-area-inset-bottom,0px));
+  }
+  .stub .ball{font-size:44px;}
+  .stub h2{margin:14px 0 6px; font-size:19px;}
+  .stub p{margin:0; color:var(--muted); font-size:14px; max-width:36ch;}
+  .stub .tag{
+    margin-top:18px; font-size:10px; font-weight:800; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--coral);
+    border:1px solid var(--coral); border-radius:999px; padding:6px 12px;
+  }
+  .back{
+    align-self:flex-start; margin:8px 16px 0; border:0; background:transparent;
+    color:var(--blue); font-size:14px; font-weight:700; cursor:pointer;
+    padding:8px; font-family:inherit;
+  }
+
+  /* profile teaser */
+  .prof-big{font-size:56px; font-weight:900; letter-spacing:-2px; font-variant-numeric:tabular-nums; line-height:1;}
+  .prof-range{
+    width:200px; height:8px; border-radius:999px; background:var(--line);
+    position:relative; margin:16px auto 6px;
+  }
+  .prof-range i{
+    position:absolute; left:30%; right:25%; top:0; bottom:0;
+    background:var(--blue); border-radius:999px;
+  }
+  .prof-range-lbl{font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums;}
+
+  /* ---------- tab bar ---------- */
+  .tabbar{
+    position:absolute; left:0; right:0; bottom:0;
+    display:flex; background:var(--surface);
+    border-top:1px solid var(--line);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+  }
+  .tab{
+    flex:1; border:0; background:transparent; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:var(--muted); font-size:10.5px; font-weight:700; font-family:inherit;
+    padding:6px 0; border-radius:12px;
+  }
+  .tab.on{color:var(--coral);}
+  .tab svg{width:22px; height:22px;}
+  .tab:focus-visible,.chip:focus-visible,.cta:focus-visible,.back:focus-visible,.card:focus-visible{
+    outline:2px solid var(--blue); outline-offset:2px;
+  }
+</style>
+
+<div class="phone">
+  <header class="topbar">
+    <div class="wordmark">QUARTO<span class="dot"></span></div>
+    <div class="lvl-pill"><small>liv</small>3.2</div>
+  </header>
+
+  <main>
+    <!-- ========== SCHERMATA 1 · TROVA PARTITA ========== -->
+    <section class="screen active" id="trova">
+      <div class="scroll">
+        <div class="greet">
+          <h1>Ciao Simone, si gioca in 4.</h1>
+          <p>Partite nella tua fascia di livello, vicino a te.</p>
+        </div>
+
+        <div class="chips">
+          <button class="chip on">Per te</button>
+          <button class="chip">Oggi</button>
+          <button class="chip">Domani</button>
+          <button class="chip">Prossimi 7 giorni</button>
+          <button class="chip">Tutte</button>
+        </div>
+
+        <div class="section-label"><span>Adatte a te</span><span>3 partite</span></div>
+
+        <!-- card 1: manca 1 -->
+        <div class="card" tabindex="0" data-match="m1">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow">Oggi · sab 18</div>
+              <div class="time">18:30</div>
+              <div class="venue">Arena Beach Ostiense<small>Roma · Ostiense</small></div>
+            </div>
+            <div class="fascia"><span>fascia</span><b>2.9–3.5</b></div>
+          </div>
+          <div class="players">
+            <div class="ava" data-face="giulia"><em>3.4</em></div>
+            <div class="ava" data-face="marco"><em>3.0</em></div>
+            <div class="ava" data-face="dario"><em>3.1</em></div>
+            <div class="ava empty">+</div>
+            <div class="gap-note">3 su 4<br>manca 1</div>
+          </div>
+          <button class="cta">Unisciti · sei il quarto</button>
+        </div>
+
+        <!-- card 2: mancano 2 -->
+        <div class="card" tabindex="0" data-match="m2">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow">Domani · dom 19</div>
+              <div class="time">13:00</div>
+              <div class="venue">Lido Sabbia Village<small>Roma · EUR</small></div>
+            </div>
+            <div class="fascia"><span>fascia</span><b>3.0–3.6</b></div>
+          </div>
+          <div class="players">
+            <div class="ava" data-face="elena"><em>3.5</em></div>
+            <div class="ava" data-face="pietro"><em>3.2</em></div>
+            <div class="ava empty">+</div>
+            <div class="ava empty">+</div>
+            <div class="gap-note">2 su 4<br>mancano 2</div>
+          </div>
+          <button class="cta">Unisciti</button>
+        </div>
+
+        <!-- card 3: completa -->
+        <div class="card" tabindex="0" data-match="m3">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow">Lun 20 lug</div>
+              <div class="time">10:00</div>
+              <div class="venue">Playa Roma Nord<small>Roma · Ponte Milvio</small></div>
+            </div>
+            <div class="fascia"><span>fascia</span><b>2.8–3.4</b></div>
+          </div>
+          <div class="players">
+            <div class="ava" data-face="francesca"><em>3.3</em></div>
+            <div class="ava" data-face="sandro"><em>2.9</em></div>
+            <div class="ava" data-face="luca"><em>3.1</em></div>
+            <div class="ava" data-face="valeria"><em>3.0</em></div>
+            <div class="gap-note" style="color:var(--ok)">4 su 4<br>completa</div>
+          </div>
+          <button class="cta ghost">Entra in lista d'attesa</button>
+        </div>
+
+        <div class="section-label"><span>Fuori dalla tua fascia</span></div>
+
+        <!-- card 4: bloccata (il cancello) -->
+        <div class="card locked" tabindex="0" id="lockedCard">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow">Oggi · sab 18</div>
+              <div class="time">19:30</div>
+              <div class="venue">Arena Beach Ostiense<small>Roma · Ostiense</small></div>
+            </div>
+            <div class="fascia"><span>fascia</span><b>4.0–4.6</b></div>
+          </div>
+          <div class="lock-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <rect x="4" y="11" width="16" height="9" rx="2"></rect>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+            </svg>
+            Riservata al livello 4.0–4.6 — così le partite restano equilibrate.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SCHERMATA 2 · DETTAGLIO PARTITA ========== -->
+    <section class="screen" id="dettaglio">
+      <div class="scroll">
+        <button class="back" data-go="trova" style="margin:8px 0 0; padding-left:0;">‹ Partite</button>
+
+        <div class="detail-hero">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow" id="dDay">Oggi · sab 18</div>
+              <div class="time" id="dTime">18:30</div>
+              <div class="venue" id="dVenue">Arena Beach Ostiense<small>Roma · Ostiense</small></div>
+            </div>
+            <div class="fascia"><span>fascia</span><b id="dFascia">2.9–3.5</b></div>
+          </div>
+        </div>
+
+        <div class="tiles">
+          <div class="tile"><b id="dCampo">Campo 2</b><span>campo</span></div>
+          <div class="tile"><b id="dDurata">1h30</b><span>durata</span></div>
+          <div class="tile"><b id="dCosto">8 €</b><span>a testa</span></div>
+        </div>
+
+        <div class="block">
+          <h3>Fascia di livello</h3>
+          <div class="fends"><span id="dFmin">2.9</span><span id="dFmax">3.5</span></div>
+          <div class="fbar"><div class="me" id="dMe" style="left:50%"></div></div>
+          <div class="fcheck" id="dCheck">Tu: 3.2 — dentro la fascia ✓</div>
+        </div>
+
+        <div class="block">
+          <h3 id="dPlayersTitle">Giocatori · 3 su 4</h3>
+          <div id="dPlayers"></div>
+        </div>
+
+        <div class="note"><span class="ico">⚖️</span>Le coppie le forma l'app quando siete in 4: il più forte gioca col meno forte, partita equilibrata.</div>
+        <div class="note"><span class="ico">🕑</span>Se non siete in 4 entro 2 ore dall'inizio, la partita si annulla senza addebito.</div>
+
+        <button class="cta" id="dCta">Unisciti · sei il quarto</button>
+      </div>
+    </section>
+
+    <!-- ========== SCHERMATA 3 · CONFERMA ISCRIZIONE ========== -->
+    <section class="screen" id="conferma">
+      <div class="scroll">
+        <button class="back" data-go="dettaglio" style="margin:8px 0 0; padding-left:0;">‹ Dettaglio</button>
+
+        <div class="greet" style="padding-top:6px;">
+          <h1 id="cTitle">Conferma il tuo posto</h1>
+          <p>Un ultimo sguardo e sei in campo.</p>
+        </div>
+
+        <div class="block" style="margin-top:2px;">
+          <h3>La partita</h3>
+          <div class="sum-row"><span class="k">Quando</span><span class="v" id="cWhen">Oggi · sab 18, 18:30</span></div>
+          <div class="sum-row"><span class="k">Dove</span><span class="v" id="cWhere">Arena Beach Ostiense</span></div>
+          <div class="sum-row"><span class="k">Fascia</span><span class="v" id="cFascia">2.9–3.5</span></div>
+          <div class="sum-row"><span class="k">Giocatori</span><span class="v" id="cPlayers">3 su 4 · sei il quarto</span></div>
+        </div>
+
+        <div class="block">
+          <h3>Quota</h3>
+          <div class="sum-row"><span class="k">Campo 1h30, diviso in 4</span><span class="v">8,00 €</span></div>
+          <div class="sum-row"><span class="k">Pagamento · carta •••• 4421</span><button class="chg">Cambia</button></div>
+        </div>
+
+        <div class="note"><span class="ico">🔒</span>L'addebito parte solo quando la partita è confermata (siete in 4). Se si annulla, non paghi nulla.</div>
+
+        <button class="cta" id="cCta">Conferma il mio posto · 8 €</button>
+      </div>
+    </section>
+
+    <!-- ========== SCHERMATA 3b · FATTO ========== -->
+    <section class="screen" id="fatto">
+      <div class="stub">
+        <div class="done-pop">✓</div>
+        <h2 id="fTitle">Sei dentro!</h2>
+        <p id="fSub">Oggi · sab 18, 18:30 — Arena Beach Ostiense. Ti avvisiamo appena siete in 4 e la partita è confermata.</p>
+        <button class="cta" data-go="trova">Torna alle partite</button>
+      </div>
+    </section>
+
+    <!-- ========== LE MIE PARTITE ========== -->
+    <section class="screen" id="partite">
+      <div class="scroll">
+        <div class="greet" style="padding-top:14px;">
+          <h1>Le mie partite</h1>
+          <p>Le prossime, e quelle da votare.</p>
+        </div>
+
+        <div class="section-label"><span>Da votare</span></div>
+        <div class="card" id="toVote" style="cursor:default;">
+          <div class="when">
+            <div class="eyebrow" style="color:var(--muted);">Ieri · ven 17 · 19:00</div>
+            <div class="venue" style="margin-top:4px;">Arena Beach Ostiense
+              <small>Con Marco · contro Giulia e Dario</small>
+            </div>
+          </div>
+          <div class="players" style="margin-top:14px;">
+            <div class="ava" data-face="simone"><em>tu</em></div>
+            <div class="ava" data-face="marco"><em>3.0</em></div>
+            <div class="ava" data-face="giulia"><em>3.4</em></div>
+            <div class="ava" data-face="dario"><em>3.1</em></div>
+            <div class="gap-note">manca il<br>punteggio</div>
+          </div>
+          <button class="cta" id="voteBtn">Vota i giocatori · 10 secondi</button>
+        </div>
+
+        <div class="section-label"><span>Prossime</span></div>
+        <div class="card" style="cursor:default;">
+          <div class="card-top">
+            <div class="when">
+              <div class="eyebrow">Domani · dom 19</div>
+              <div class="time">18:00</div>
+              <div class="venue">Lido Sabbia Village<small>Roma · EUR</small></div>
+            </div>
+            <div class="fascia" style="background:transparent; border:1px solid var(--line); color:var(--ok);">
+              <span>stato</span><b style="font-size:13px;">Confermata</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SCHERMATA 4 · VOTA I GIOCATORI ========== -->
+    <section class="screen" id="vota">
+      <div class="scroll">
+        <button class="back" id="vBack" style="margin:8px 0 0; padding-left:0;">‹ Indietro</button>
+
+        <div class="greet" style="padding-top:6px;">
+          <h1 id="vTitle">Com'è finita?</h1>
+          <p id="vSub">🔒 Le tue risposte non le vede nessuno: servono solo a tenere le partite equilibrate.</p>
+        </div>
+
+        <div class="pdots" id="vDots"><span class="on"></span><span></span><span></span><span></span></div>
+
+        <!-- passo 0: punteggio, un set alla volta -->
+        <div id="vstep0">
+          <div class="block">
+            <div class="teams">
+              <span class="face f26" data-face="simone"></span><span class="face f26" data-face="marco" style="margin-left:-10px;"></span>
+              <span>Tu e Marco</span> <b id="tA">0</b><span>—</span><b id="tB">0</b> <span>Giulia e Dario</span>
+              <span class="face f26" data-face="giulia"></span><span class="face f26" data-face="dario" style="margin-left:-10px;"></span>
+            </div>
+            <div class="set-row">
+              <span class="set-lbl">Set 1</span>
+              <input class="s-in" id="s1a" inputmode="numeric" placeholder="–"><span class="s-dash">–</span><input class="s-in" id="s1b" inputmode="numeric" placeholder="–">
+            </div>
+            <div class="set-row" id="setrow2" hidden>
+              <span class="set-lbl">Set 2</span>
+              <input class="s-in" id="s2a" inputmode="numeric" placeholder="–"><span class="s-dash">–</span><input class="s-in" id="s2b" inputmode="numeric" placeholder="–">
+            </div>
+            <div class="set-row" id="setrow3" hidden>
+              <span class="set-lbl">Set 3</span>
+              <input class="s-in" id="s3a" inputmode="numeric" placeholder="–"><span class="s-dash">–</span><input class="s-in" id="s3b" inputmode="numeric" placeholder="–">
+            </div>
+            <div class="score-src" style="margin-top:14px;">I set senza punteggio completo non contano.</div>
+          </div>
+          <button class="cta" id="vScoreOk" style="margin-top:16px;" disabled>Conferma punteggio</button>
+        </div>
+
+        <!-- passo 1: avversari -->
+        <div id="vstep1" hidden>
+          <div class="vq">Tra i tuoi avversari, chi era più forte oggi?</div>
+          <button class="opt" data-next="2"><span class="face f32" data-face="giulia"></span><span>Giulia ha spaccato la partita</span></button>
+          <button class="opt" data-next="2"><span class="face f32" data-face="giulia"></span><span>Giulia era più forte</span></button>
+          <button class="opt" data-next="2"><span class="face f32" data-face="giulia"></span><span class="face f32" data-face="dario" style="margin-left:-16px;"></span><span>Si sono equivalsi</span></button>
+          <button class="opt" data-next="2"><span class="face f32" data-face="dario"></span><span>Dario era più forte</span></button>
+          <button class="opt" data-next="2"><span class="face f32" data-face="dario"></span><span>Dario ha spaccato la partita</span></button>
+        </div>
+
+        <!-- passo 2: compagno -->
+        <div id="vstep2" hidden>
+          <div class="vq" style="display:flex; align-items:center; gap:12px;">
+            <span class="face f48" data-face="marco"></span>
+            <span>Come hai visto Marco oggi, per il livello della partita?</span>
+          </div>
+          <button class="opt" data-next="3"><span style="font-size:24px;">🌟</span><span>Eccellente</span></button>
+          <button class="opt" data-next="3"><span style="font-size:24px;">👍</span><span>Buona</span></button>
+          <button class="opt" data-next="3"><span style="font-size:24px;">😐</span><span>Sufficiente</span></button>
+          <button class="opt" data-next="3"><span style="font-size:24px;">😣</span><span>Oggi in difficoltà</span></button>
+        </div>
+
+        <!-- passo 3: com'è stata la partita -->
+        <div id="vstep3" hidden>
+          <div class="vq">Com'è stata la partita?</div>
+          <button class="opt" data-next="4"><span style="font-size:24px;">🤩</span><span>Super</span></button>
+          <button class="opt" data-next="4"><span style="font-size:24px;">😄</span><span>Divertente</span></button>
+          <button class="opt" data-next="4"><span style="font-size:24px;">🙂</span><span>Buona</span></button>
+          <button class="opt" data-next="4"><span style="font-size:24px;">🥱</span><span>Noiosa</span></button>
+        </div>
+
+        <!-- passo 4: fatto -->
+        <div id="vstep4" hidden>
+          <div class="vdone">
+            <div class="done-pop">✓</div>
+            <h2>Fatto: 10 secondi.</h2>
+            <p>I livelli di tutti si aggiornano quando anche gli altri hanno confermato.</p>
+            <button class="cta ghost" id="vCompl">🏅 Lascia una carta complimento</button>
+            <button class="cta" id="vEnd" style="margin-top:10px;">Torna alle mie partite</button>
+          </div>
+        </div>
+
+        <!-- passo 5: carta complimento (facoltativa, una sola) -->
+        <div id="vstep5" hidden>
+          <div class="vq">🏅 La giocata che ti ha colpito? <span style="color:var(--muted);">(una carta sola)</span></div>
+          <div class="who-row">
+            <button class="opt" data-who="marco"><span class="face f32" data-face="marco"></span><span>Marco</span></button>
+            <button class="opt" data-who="giulia"><span class="face f32" data-face="giulia"></span><span>Giulia</span></button>
+            <button class="opt" data-who="dario"><span class="face f32" data-face="dario"></span><span>Dario</span></button>
+          </div>
+          <div class="fund-grid" id="fundGrid" hidden>
+            <button class="opt fund">🎯 Ricezione</button>
+            <button class="opt fund">💥 Schiacciata</button>
+            <button class="opt fund">🧱 Muro</button>
+            <button class="opt fund">🛡️ Difesa</button>
+            <button class="opt fund">🎪 Alzata</button>
+          </div>
+          <button class="cta ghost" id="vSkipCompl" style="margin-top:14px;">Salta</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SCHERMATA 5 · PROFILO ========== -->
+    <section class="screen" id="profilo">
+      <div class="scroll">
+        <div class="prof-head">
+          <span class="face f72" data-face="simone"></span>
+          <div>
+            <h1>Simone R.</h1>
+            <p>Roma · gioca da giugno 2026</p>
+          </div>
+        </div>
+
+        <div class="block" style="text-align:center;">
+          <h3>Il tuo livello</h3>
+          <div class="prof-big" style="margin-top:10px;">3.2</div>
+          <div class="prof-range"><i></i></div>
+          <div class="prof-range-lbl">stimato tra 2.8 e 3.6 · si affina partita dopo partita</div>
+          <div class="rel-chip">Affidabilità in crescita · 9 partite valutate</div>
+        </div>
+
+        <div class="tiles">
+          <div class="tile"><b>23</b><span>partite</span></div>
+          <div class="tile"><b>13</b><span>vittorie</span></div>
+          <div class="tile"><b>14</b><span>complimenti</span></div>
+        </div>
+
+        <div class="block">
+          <h3>Radar dei fondamentali</h3>
+          <div class="radar-note">dalle carte complimento ricevute — una a partita</div>
+          <div id="radarBox"></div>
+          <div class="chips-badges">
+            <span>🎯 Ricezione ×6</span><span>🛡️ Difesa ×4</span><span>💥 Schiacciata ×2</span><span>🧱 Muro ×1</span><span>🎪 Alzata ×1</span>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3>Ultime partite</h3>
+          <div class="m-row"><span class="wl w">V</span><div class="m-info">Ieri · con Marco vs Giulia e Dario<small>2–1 · 21-18, 15-21, 15-12</small></div><span class="delta up">+0.1</span></div>
+          <div class="m-row"><span class="wl l">P</span><div class="m-info">Mar 14 · con Elena vs Pietro e Luca<small>0–2 · 18-21, 16-21</small></div><span class="delta dn">−0.1</span></div>
+          <div class="m-row"><span class="wl w">V</span><div class="m-info">Dom 12 · con Dario vs Sandro e Valeria<small>2–0 · 21-15, 21-17</small></div><span class="delta up">+0.2</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab on" data-go="trova">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path>
+      </svg>
+      Trova
+    </button>
+    <button class="tab" data-go="partite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path>
+      </svg>
+      Le mie partite
+    </button>
+    <button class="tab" data-go="profilo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"></path>
+      </svg>
+      Profilo
+    </button>
+  </nav>
+</div>
+
+<script>
+  const screens = document.querySelectorAll('.screen');
+  const tabs = document.querySelectorAll('.tab');
+
+  function go(id){
+    screens.forEach(s => s.classList.toggle('active', s.id === id));
+    tabs.forEach(t => t.classList.toggle('on', t.dataset.go === id));
+    const sc = document.querySelector('#' + id + ' .scroll');
+    if (sc) sc.scrollTop = 0;
+  }
+
+  document.querySelectorAll('[data-go]').forEach(el =>
+    el.addEventListener('click', () => go(el.dataset.go))
+  );
+
+  // ---- volti segnaposto (nell'app vera: foto profilo) ----
+  const FACES = {
+    simone:    {style:'buzz',  hair:'#3A322B', skin:'#C6845A', shirt:'#C2A26B'},
+    marco:     {style:'short', hair:'#1F1B18', skin:'#E8B48C', shirt:'#4AA075'},
+    giulia:    {style:'long',  hair:'#2E2620', skin:'#F2C9A0', shirt:'#E06A4A'},
+    dario:     {style:'short', hair:'#6B4A2F', skin:'#D99C6B', shirt:'#4A90C2'},
+    elena:     {style:'bun',   hair:'#C9A227', skin:'#F2C9A0', shirt:'#9070B8'},
+    pietro:    {style:'buzz',  hair:'#8C8C8C', skin:'#E8B48C', shirt:'#3FA6A0'},
+    francesca: {style:'long',  hair:'#7A4A2B', skin:'#EFC29B', shirt:'#4A90C2'},
+    sandro:    {style:'buzz',  hair:'#2E2620', skin:'#C6845A', shirt:'#D98A3D'},
+    luca:      {style:'short', hair:'#6B4A2F', skin:'#E8B48C', shirt:'#3C5A80'},
+    valeria:   {style:'bun',   hair:'#1A1A1A', skin:'#D99C6B', shirt:'#4AA075'}
+  };
+
+  function faceSVG(f){
+    const hc = f.hair;
+    let hair = '';
+    const cap = '<path d="M13.8 19a10.2 10.2 0 0 1 20.4 0z" fill="' + hc + '"/>';
+    if (f.style === 'short') hair = cap;
+    if (f.style === 'buzz')  hair = '<path d="M15.2 17.6a8.8 8.8 0 0 1 17.6 0z" fill="' + hc + '"/>';
+    if (f.style === 'long')  hair = cap +
+      '<rect x="12.6" y="17" width="5" height="15" rx="2.5" fill="' + hc + '"/>' +
+      '<rect x="30.4" y="17" width="5" height="15" rx="2.5" fill="' + hc + '"/>';
+    if (f.style === 'bun')   hair = cap + '<circle cx="24" cy="8.6" r="4" fill="' + hc + '"/>';
+    return '<svg viewBox="0 0 48 48" aria-hidden="true">' +
+      '<rect width="48" height="48" fill="#E7DFCE"/>' +
+      '<circle cx="24" cy="47" r="14" fill="' + f.shirt + '"/>' +
+      '<circle cx="24" cy="20" r="10" fill="' + f.skin + '"/>' + hair +
+      '<circle cx="20.6" cy="19.6" r="1.3" fill="#2B2622"/>' +
+      '<circle cx="27.4" cy="19.6" r="1.3" fill="#2B2622"/>' +
+      '<path d="M20.6 24q3.4 2.6 6.8 0" stroke="#2B2622" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+      '</svg>';
+  }
+
+  document.querySelectorAll('[data-face]').forEach(el =>
+    el.insertAdjacentHTML('afterbegin', faceSVG(FACES[el.dataset.face]))
+  );
+
+  // ---- schermata 2: dati delle partite ----
+  const USER_LVL = 3.2;
+  const MATCHES = {
+    m1: {
+      day:'Oggi · sab 18', time:'18:30', venue:'Arena Beach Ostiense', zone:'Roma · Ostiense',
+      campo:'Campo 2', durata:'1h30', costo:'8 €', fmin:2.9, fmax:3.5,
+      players:[ {face:'giulia', name:'Giulia P.', lvl:'3.4'},
+                {face:'marco',  name:'Marco T.',  lvl:'3.0'},
+                {face:'dario',  name:'Dario F.',  lvl:'3.1'} ],
+      full:false
+    },
+    m2: {
+      day:'Domani · dom 19', time:'13:00', venue:'Lido Sabbia Village', zone:'Roma · EUR',
+      campo:'Campo 1', durata:'1h30', costo:'8 €', fmin:3.0, fmax:3.6,
+      players:[ {face:'elena',  name:'Elena B.',  lvl:'3.5'},
+                {face:'pietro', name:'Pietro M.', lvl:'3.2'} ],
+      full:false
+    },
+    m3: {
+      day:'Lun 20 lug', time:'10:00', venue:'Playa Roma Nord', zone:'Roma · Ponte Milvio',
+      campo:'Campo 3', durata:'1h30', costo:'8 €', fmin:2.8, fmax:3.4,
+      players:[ {face:'francesca', name:'Francesca L.', lvl:'3.3'},
+                {face:'sandro',    name:'Sandro V.',    lvl:'2.9'},
+                {face:'luca',      name:'Luca D.',      lvl:'3.1'},
+                {face:'valeria',   name:'Valeria N.',   lvl:'3.0'} ],
+      full:true
+    }
+  };
+
+  let currentId = 'm1';
+
+  function openMatch(id){
+    currentId = id;
+    const m = MATCHES[id];
+    document.getElementById('dDay').textContent = m.day;
+    document.getElementById('dTime').textContent = m.time;
+    document.getElementById('dVenue').innerHTML =
+      m.venue + '<small>' + m.zone + '</small>';
+    document.getElementById('dFascia').textContent = m.fmin.toFixed(1) + '–' + m.fmax.toFixed(1);
+    document.getElementById('dCampo').textContent = m.campo;
+    document.getElementById('dDurata').textContent = m.durata;
+    document.getElementById('dCosto').textContent = m.costo;
+    document.getElementById('dFmin').textContent = m.fmin.toFixed(1);
+    document.getElementById('dFmax').textContent = m.fmax.toFixed(1);
+    const pct = Math.min(96, Math.max(4, (USER_LVL - m.fmin) / (m.fmax - m.fmin) * 100));
+    document.getElementById('dMe').style.left = pct + '%';
+    document.getElementById('dCheck').textContent = 'Tu: ' + USER_LVL.toFixed(1) + ' — dentro la fascia ✓';
+
+    document.getElementById('dPlayersTitle').textContent =
+      'Giocatori · ' + m.players.length + ' su 4';
+    let rows = '';
+    m.players.forEach(p => {
+      rows += '<div class="p-row"><div class="ava">' + faceSVG(FACES[p.face]) + '</div>' +
+              '<div class="p-name">' + p.name + '</div>' +
+              '<div class="p-lvl">' + p.lvl + '</div></div>';
+    });
+    for (let i = m.players.length; i < 4; i++){
+      rows += '<div class="p-row free"><div class="ava empty">+</div>' +
+              '<div class="p-name">Posto libero</div></div>';
+    }
+    document.getElementById('dPlayers').innerHTML = rows;
+
+    const cta = document.getElementById('dCta');
+    if (m.full){
+      cta.textContent = "Entra in lista d'attesa";
+      cta.classList.add('ghost');
+    } else {
+      cta.textContent = (m.players.length === 3) ? 'Unisciti · sei il quarto' : 'Unisciti';
+      cta.classList.remove('ghost');
+    }
+    go('dettaglio');
+  }
+
+  document.querySelectorAll('.card[data-match]').forEach(card => {
+    const open = () => openMatch(card.dataset.match);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+  });
+
+  // ---- schermata 3: conferma iscrizione ----
+  function openConferma(){
+    const m = MATCHES[currentId];
+    document.getElementById('cWhen').textContent = m.day + ', ' + m.time;
+    document.getElementById('cWhere').textContent = m.venue;
+    document.getElementById('cFascia').textContent = m.fmin.toFixed(1) + '–' + m.fmax.toFixed(1);
+    const cTitle = document.getElementById('cTitle');
+    const cCta = document.getElementById('cCta');
+    if (m.full){
+      cTitle.textContent = "Entra in lista d'attesa";
+      document.getElementById('cPlayers').textContent = '4 su 4 · completa';
+      cCta.textContent = 'Mettimi in lista · gratis';
+    } else {
+      cTitle.textContent = 'Conferma il tuo posto';
+      document.getElementById('cPlayers').textContent =
+        m.players.length + ' su 4' + (m.players.length === 3 ? ' · sei il quarto' : '');
+      cCta.textContent = 'Conferma il mio posto · 8 €';
+    }
+    go('conferma');
+  }
+
+  document.getElementById('dCta').addEventListener('click', openConferma);
+
+  document.getElementById('cCta').addEventListener('click', () => {
+    const m = MATCHES[currentId];
+    if (m.full){
+      document.getElementById('fTitle').textContent = "Sei in lista d'attesa";
+      document.getElementById('fSub').textContent =
+        m.day + ', ' + m.time + ' — ' + m.venue + '. Ti avvisiamo subito se si libera un posto.';
+    } else if (m.players.length === 3){
+      document.getElementById('fTitle').textContent = 'Sei dentro: siete in 4!';
+      document.getElementById('fSub').textContent =
+        m.day + ', ' + m.time + ' — ' + m.venue + '. Partita confermata, ti aspettano in campo.';
+    } else {
+      document.getElementById('fTitle').textContent = 'Sei dentro!';
+      document.getElementById('fSub').textContent =
+        m.day + ', ' + m.time + ' — ' + m.venue + '. Ti avvisiamo appena siete in 4 e la partita è confermata.';
+    }
+    go('fatto');
+  });
+
+  // ---- schermata 4: vota i giocatori ----
+  const V_TITLES = ["Com'è finita?", 'I tuoi avversari', 'Il tuo compagno', 'La partita', '', ''];
+  let vStep = 0;
+
+  function vGo(n){
+    vStep = n;
+    for (let i = 0; i < 6; i++){
+      document.getElementById('vstep' + i).hidden = (i !== n);
+    }
+    document.getElementById('vTitle').textContent = V_TITLES[n];
+    const last = (n >= 4);
+    document.getElementById('vTitle').style.display = last ? 'none' : '';
+    document.getElementById('vSub').style.display = last ? 'none' : '';
+    document.getElementById('vDots').style.display = last ? 'none' : '';
+    document.getElementById('vBack').style.visibility = last ? 'hidden' : 'visible';
+    document.querySelectorAll('#vDots span').forEach((d, i) =>
+      d.classList.toggle('on', i <= n)
+    );
+    const sc = document.querySelector('#vota .scroll');
+    if (sc) sc.scrollTop = 0;
+  }
+
+  // punteggio progressivo: un set alla volta, i set incompleti non contano
+  const S_PAIRS = [['s1a','s1b'], ['s2a','s2b'], ['s3a','s3b']];
+
+  function pairDone(i){
+    const a = document.getElementById(S_PAIRS[i][0]).value;
+    const b = document.getElementById(S_PAIRS[i][1]).value;
+    return a !== '' && b !== '';
+  }
+
+  function scoreChanged(){
+    document.getElementById('setrow2').hidden = !pairDone(0);
+    document.getElementById('setrow3').hidden = !(pairDone(0) && pairDone(1));
+    let A = 0, B = 0;
+    for (let i = 0; i < 3; i++){
+      if (!pairDone(i)) continue;
+      const a = parseInt(document.getElementById(S_PAIRS[i][0]).value, 10);
+      const b = parseInt(document.getElementById(S_PAIRS[i][1]).value, 10);
+      if (a > b) A++; else if (b > a) B++;
+    }
+    document.getElementById('tA').textContent = A;
+    document.getElementById('tB').textContent = B;
+    document.getElementById('vScoreOk').disabled = !pairDone(0);
+  }
+
+  S_PAIRS.flat().forEach(id => {
+    const inp = document.getElementById(id);
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '').slice(0, 2);
+      scoreChanged();
+    });
+  });
+
+  document.getElementById('voteBtn').addEventListener('click', () => {
+    document.querySelectorAll('#vota .opt').forEach(o => o.classList.remove('sel'));
+    S_PAIRS.flat().forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('fundGrid').hidden = true;
+    scoreChanged();
+    vGo(0);
+    go('vota');
+  });
+
+  document.getElementById('vBack').addEventListener('click', () => {
+    if (vStep === 0) go('partite'); else vGo(vStep - 1);
+  });
+
+  document.getElementById('vScoreOk').addEventListener('click', () => vGo(1));
+
+  document.querySelectorAll('#vota .opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (!opt.dataset.next) return;
+      opt.parentElement.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+      opt.classList.add('sel');
+      setTimeout(() => vGo(parseInt(opt.dataset.next, 10)), 350);
+    });
+  });
+
+  function finishVote(withCard){
+    document.getElementById('toVote').innerHTML = withCard
+      ? '<div class="voted">✓ Votata + carta 🏅 inviata — i livelli si aggiornano quando confermano tutti e 4.</div>'
+      : '<div class="voted">✓ Votata — grazie! I livelli si aggiornano quando confermano tutti e 4.</div>';
+    go('partite');
+  }
+
+  document.getElementById('vEnd').addEventListener('click', () => finishVote(false));
+  document.getElementById('vCompl').addEventListener('click', () => vGo(5));
+  document.getElementById('vSkipCompl').addEventListener('click', () => finishVote(false));
+
+  document.querySelectorAll('#vstep5 [data-who]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#vstep5 [data-who]').forEach(o => o.classList.remove('sel'));
+      b.classList.add('sel');
+      document.getElementById('fundGrid').hidden = false;
+    });
+  });
+
+  document.querySelectorAll('#fundGrid .fund').forEach(b => {
+    b.addEventListener('click', () => {
+      b.classList.add('sel');
+      setTimeout(() => finishVote(true), 350);
+    });
+  });
+
+  // ---- schermata 5: radar dei fondamentali ----
+  const RADAR = [
+    {name:'Ricezione', emo:'🎯', v:6},
+    {name:'Schiacciata', emo:'💥', v:2},
+    {name:'Muro', emo:'🧱', v:1},
+    {name:'Alzata', emo:'🎪', v:1},
+    {name:'Difesa', emo:'🛡️', v:4}
+  ];
+  (function drawRadar(){
+    const cx = 150, cy = 122, R = 82, maxV = 6, N = RADAR.length;
+    const pt = (i, r) => {
+      const a = -Math.PI/2 + i*2*Math.PI/N;
+      return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+    };
+    let s = '<svg class="radar" viewBox="0 0 300 245" width="300" role="img" aria-label="Radar dei fondamentali">';
+    [1/3, 2/3, 1].forEach(f => {
+      const pts = [];
+      for (let i = 0; i < N; i++) pts.push(pt(i, R*f).map(n => n.toFixed(1)).join(','));
+      s += '<polygon class="ring" points="' + pts.join(' ') + '"/>';
+    });
+    for (let i = 0; i < N; i++){
+      const [x, y] = pt(i, R);
+      s += '<line class="spoke" x1="' + cx + '" y1="' + cy + '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>';
+    }
+    const dpts = [], dots = [];
+    RADAR.forEach((d, i) => {
+      const [x, y] = pt(i, R * (0.12 + 0.88 * d.v / maxV));
+      dpts.push(x.toFixed(1) + ',' + y.toFixed(1));
+      dots.push([x, y]);
+    });
+    s += '<polygon class="poly" points="' + dpts.join(' ') + '"/>';
+    dots.forEach(([x, y]) => {
+      s += '<circle class="dot" r="3.5" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '"/>';
+    });
+    RADAR.forEach((d, i) => {
+      const [x, y] = pt(i, R + 17);
+      const c = Math.cos(-Math.PI/2 + i*2*Math.PI/N);
+      const anchor = Math.abs(c) < 0.3 ? 'middle' : (c > 0 ? 'start' : 'end');
+      s += '<text x="' + x.toFixed(1) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="' + anchor + '">' +
+           d.emo + ' <tspan class="n">' + d.v + '</tspan></text>';
+    });
+    s += '</svg>';
+    document.getElementById('radarBox').innerHTML = s;
+  })();
+
+  // card bloccata: il cancello di livello — scuote, non apre
+  const locked = document.getElementById('lockedCard');
+  locked.addEventListener('click', () => {
+    locked.classList.remove('deny');
+    void locked.offsetWidth;
+    locked.classList.add('deny');
+  });
+</script>
+
+</body>
+</html>
