@@ -247,6 +247,11 @@
   }
   button.p-row:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
   .join-slot .p-name{color:var(--coral); font-weight:700;}
+  .mista-tag{
+    display:inline-block; background:#8A63B8; color:#fff;
+    font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+    border-radius:999px; padding:3px 8px; vertical-align:middle;
+  }
   .note{display:flex; gap:8px; font-size:12.5px; color:var(--muted); margin-top:12px; padding:0 6px; line-height:1.45;}
   .note .ico{flex-shrink:0;}
   #dettaglio .cta{margin-top:16px;}
@@ -461,7 +466,7 @@
         <div class="card" tabindex="0" data-match="m2">
           <div class="card-top">
             <div class="when">
-              <div class="eyebrow">Domani · dom 19</div>
+              <div class="eyebrow">Domani · dom 19 <span class="mista-tag">Mista</span></div>
               <div class="time">13:00</div>
               <div class="venue">Lido Sabbia Village<small>Roma · EUR</small></div>
             </div>
@@ -531,6 +536,7 @@
               <div class="eyebrow" id="dDay">Oggi · sab 18</div>
               <div class="time" id="dTime">18:30</div>
               <div class="venue" id="dVenue">Arena Beach Ostiense<small>Roma · Ostiense</small></div>
+              <div class="mista-tag" id="dMista" style="display:none; margin-top:6px;">Mista · coppie uomo+donna</div>
             </div>
             <div class="fascia"><span>fascia</span><b id="dFascia">2.9–3.5</b></div>
           </div>
@@ -554,11 +560,12 @@
           <div id="dPlayers"></div>
         </div>
 
-        <div class="note"><span class="ico">⚖️</span>Ti iscrivi da solo o in coppia con un amico. In campo l'app propone le coppie più equilibrate — e potete rimescolarle, anche una diversa a ogni set.</div>
+        <div class="note"><span class="ico">⚖️</span>Ognuno gioca col suo account e il suo livello. In campo potete rimescolare le coppie — anche una diversa a ogni set.</div>
+        <div class="note"><span class="ico">👥</span>Puoi portare un amico senza account: si gioca lo stesso, ma la partita non assegna punti.</div>
         <div class="note"><span class="ico">🕑</span>Se non siete in 4 entro 2 ore dall'inizio, la partita si annulla senza addebito.</div>
 
         <button class="cta" id="dCta">Unisciti · sei il quarto</button>
-        <button class="cta ghost" id="dCtaPair" style="margin-top:10px;">👥 Unisciti in coppia con un amico</button>
+        <button class="cta ghost" id="dCtaPair" style="margin-top:10px;">👥 Porta un amico senza account</button>
       </div>
     </section>
 
@@ -877,7 +884,7 @@
     },
     m2: {
       day:'Domani · dom 19', time:'13:00', venue:'Lido Sabbia Village', zone:'Roma · EUR',
-      campo:'Campo 1', durata:'1h30', costo:'8 €', fmin:3.0, fmax:3.6,
+      campo:'Campo 1', durata:'1h30', costo:'8 €', fmin:3.0, fmax:3.6, mista:true,
       players:[ {face:'elena',  name:'Elena B.',  lvl:'3.5'},
                 {face:'pietro', name:'Pietro M.', lvl:'3.2'}, null, null ],
       full:false
@@ -914,6 +921,7 @@
     const pct = Math.min(96, Math.max(4, (USER_LVL - m.fmin) / (m.fmax - m.fmin) * 100));
     document.getElementById('dMe').style.left = pct + '%';
     document.getElementById('dCheck').textContent = 'Tu: ' + USER_LVL.toFixed(1) + ' — dentro la fascia ✓';
+    document.getElementById('dMista').style.display = m.mista ? '' : 'none';
 
     renderDetail(m);
 
@@ -982,7 +990,7 @@
     document.getElementById('cFascia').textContent = m.fmin.toFixed(1) + '–' + m.fmax.toFixed(1);
     const cTitle = document.getElementById('cTitle');
     const cCta = document.getElementById('cCta');
-    document.getElementById('cQuotaLbl').textContent = pairJoin ? 'Campo 1h30, 2 quote' : 'Campo 1h30, diviso in 4';
+    document.getElementById('cQuotaLbl').textContent = pairJoin ? 'Campo 1h30, 2 quote (tu + ospite)' : 'Campo 1h30, diviso in 4';
     document.getElementById('cQuota').textContent = pairJoin ? '16,00 €' : '8,00 €';
     if (m.full){
       cTitle.textContent = "Entra in lista d'attesa";
@@ -993,11 +1001,11 @@
       m.players.forEach((p, i) => { if (!p) free.push(i); });
       const sameTeam = (free.includes(2) && free.includes(3)) ? 'Coppia B'
                      : (free.includes(0) && free.includes(1)) ? 'Coppia A' : null;
-      cTitle.textContent = 'Confermate i vostri 2 posti';
+      cTitle.textContent = 'Porti un amico senza account';
       document.getElementById('cPlayers').textContent =
-        cnt(m) + ' su 4 · +2 con voi' + (cnt(m) === 2 ? ' = completa' : '') +
-        (sameTeam ? ' · insieme in ' + sameTeam : '');
-      cCta.textContent = 'Conferma i nostri 2 posti · 16 €';
+        'Tu + ospite' + (sameTeam ? ' insieme in ' + sameTeam : '') +
+        (cnt(m) === 2 ? ' = completa' : '') + ' · amichevole, niente punti';
+      cCta.textContent = 'Conferma · 16 €';
     } else {
       const mate = m.players[mateIdx(joinSlot)];
       const team = joinSlot < 2 ? 'Coppia A' : 'Coppia B';
@@ -1029,7 +1037,8 @@
         const free = [];
         m.players.forEach((p, i) => { if (!p) free.push(i); });
         m.players[free[0]] = me;
-        m.players[free[1]] = {face:'amico', name:'Il tuo amico', lvl:'—'};
+        m.players[free[1]] = {face:'amico', name:'Ospite · senza account', lvl:'—'};
+        m.friendly = true;
       } else {
         m.players[joinSlot] = me;
       }
@@ -1049,6 +1058,9 @@
           m.day + ', ' + m.time + ' — ' + m.venue + '. ' +
           (pairJoin ? 'Vi' : 'Ti') + ' avvisiamo appena siete in 4.';
       }
+      if (m.friendly){
+        document.getElementById('fSub').textContent += ' Partita amichevole: non vale per il livello.';
+      }
     }
     go('fatto');
   });
@@ -1063,7 +1075,8 @@
       if (p) html += '<div class="ava">' + faceSVG(FACES[p.face]) + '<em>' + (p.me ? 'tu' : p.lvl) + '</em></div>';
       else html += '<div class="ava empty">+</div>';
     });
-    html += '<div class="gap-note" style="color:var(--ok)">' + cnt(m) + ' su 4<br>ci sei tu ✓</div>';
+    html += '<div class="gap-note" style="color:var(--ok)">' + cnt(m) + ' su 4<br>' +
+            (m.friendly ? 'amichevole ✓' : 'ci sei tu ✓') + '</div>';
     pl.innerHTML = html;
     const btn = card.querySelector('.cta');
     if (btn){ btn.textContent = '✓ Sei iscritto'; btn.classList.add('ghost'); }
@@ -1079,7 +1092,7 @@
       '<div class="venue">' + m.venue + '<small>' + m.zone + '</small></div></div>' +
       '<div class="fascia" style="background:transparent; border:1px solid var(--line); color:' +
       (n === 4 ? 'var(--ok)' : 'var(--muted)') + ';"><span>stato</span><b style="font-size:13px;">' +
-      (n === 4 ? 'Confermata' : 'In attesa · ' + n + ' su 4') + '</b></div></div></div>');
+      (n === 4 ? (m.friendly ? 'Amichevole' : 'Confermata') : 'In attesa · ' + n + ' su 4') + '</b></div></div></div>');
   }
 
   // ---- schermata 4: vota i giocatori ----
