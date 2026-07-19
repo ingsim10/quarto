@@ -237,6 +237,16 @@
     font-size:13px; font-weight:800; font-variant-numeric:tabular-nums;
     background:var(--blue-bg); color:var(--blue); border-radius:999px; padding:4px 10px;
   }
+  .team-lbl{
+    font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); padding-top:8px;
+  }
+  button.p-row{
+    width:100%; background:none; border:0; border-bottom:1px solid var(--line);
+    font-family:inherit; font-size:inherit; cursor:pointer; text-align:left; color:inherit;
+  }
+  button.p-row:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  .join-slot .p-name{color:var(--coral); font-weight:700;}
   .note{display:flex; gap:8px; font-size:12.5px; color:var(--muted); margin-top:12px; padding:0 6px; line-height:1.45;}
   .note .ico{flex-shrink:0;}
   #dettaglio .cta{margin-top:16px;}
@@ -619,6 +629,7 @@
         </div>
 
         <div class="section-label"><span>Prossime</span></div>
+        <div id="prossimeExtra"></div>
         <div class="card" style="cursor:default;">
           <div class="card-top">
             <div class="when">
@@ -825,7 +836,8 @@
     francesca: {style:'long',  hair:'#7A4A2B', skin:'#EFC29B', shirt:'#4A90C2'},
     sandro:    {style:'buzz',  hair:'#2E2620', skin:'#C6845A', shirt:'#D98A3D'},
     luca:      {style:'short', hair:'#6B4A2F', skin:'#E8B48C', shirt:'#3C5A80'},
-    valeria:   {style:'bun',   hair:'#1A1A1A', skin:'#D99C6B', shirt:'#4AA075'}
+    valeria:   {style:'bun',   hair:'#1A1A1A', skin:'#D99C6B', shirt:'#4AA075'},
+    amico:     {style:'short', hair:'#55636E', skin:'#E3B58E', shirt:'#7A8894'}
   };
 
   function faceSVG(f){
@@ -860,14 +872,14 @@
       campo:'Campo 2', durata:'1h30', costo:'8 €', fmin:2.9, fmax:3.5,
       players:[ {face:'giulia', name:'Giulia P.', lvl:'3.4'},
                 {face:'marco',  name:'Marco T.',  lvl:'3.0'},
-                {face:'dario',  name:'Dario F.',  lvl:'3.1'} ],
+                {face:'dario',  name:'Dario F.',  lvl:'3.1'}, null ],
       full:false
     },
     m2: {
       day:'Domani · dom 19', time:'13:00', venue:'Lido Sabbia Village', zone:'Roma · EUR',
       campo:'Campo 1', durata:'1h30', costo:'8 €', fmin:3.0, fmax:3.6,
       players:[ {face:'elena',  name:'Elena B.',  lvl:'3.5'},
-                {face:'pietro', name:'Pietro M.', lvl:'3.2'} ],
+                {face:'pietro', name:'Pietro M.', lvl:'3.2'}, null, null ],
       full:false
     },
     m3: {
@@ -880,6 +892,9 @@
       full:true
     }
   };
+
+  const cnt = m => m.players.filter(Boolean).length;
+  const mateIdx = i => (i === 0 ? 1 : i === 1 ? 0 : i === 2 ? 3 : 2);
 
   let currentId = 'm1';
 
@@ -900,31 +915,45 @@
     document.getElementById('dMe').style.left = pct + '%';
     document.getElementById('dCheck').textContent = 'Tu: ' + USER_LVL.toFixed(1) + ' — dentro la fascia ✓';
 
-    document.getElementById('dPlayersTitle').textContent =
-      'Giocatori · ' + m.players.length + ' su 4';
-    let rows = '';
-    m.players.forEach(p => {
-      rows += '<div class="p-row"><div class="ava">' + faceSVG(FACES[p.face]) + '</div>' +
-              '<div class="p-name">' + p.name + '</div>' +
-              '<div class="p-lvl">' + p.lvl + '</div></div>';
-    });
-    for (let i = m.players.length; i < 4; i++){
-      rows += '<div class="p-row free"><div class="ava empty">+</div>' +
-              '<div class="p-name">Posto libero</div></div>';
-    }
-    document.getElementById('dPlayers').innerHTML = rows;
+    renderDetail(m);
 
     const cta = document.getElementById('dCta');
-    if (m.full){
+    cta.disabled = false;
+    cta.classList.remove('ghost');
+    if (m.joined){
+      cta.textContent = '✓ Sei iscritto';
+      cta.classList.add('ghost');
+      cta.disabled = true;
+    } else if (m.full){
       cta.textContent = "Entra in lista d'attesa";
       cta.classList.add('ghost');
     } else {
-      cta.textContent = (m.players.length === 3) ? 'Unisciti · sei il quarto' : 'Unisciti';
-      cta.classList.remove('ghost');
+      cta.textContent = (cnt(m) === 3) ? 'Unisciti · sei il quarto' : 'Unisciti';
     }
     document.getElementById('dCtaPair').style.display =
-      (!m.full && 4 - m.players.length >= 2) ? '' : 'none';
+      (!m.full && !m.joined && 4 - cnt(m) >= 2) ? '' : 'none';
     go('dettaglio');
+  }
+
+  function renderDetail(m){
+    document.getElementById('dPlayersTitle').textContent = 'Giocatori · ' + cnt(m) + ' su 4';
+    let rows = '';
+    m.players.forEach((p, i) => {
+      if (i === 0) rows += '<div class="team-lbl">Coppia A</div>';
+      if (i === 2) rows += '<div class="team-lbl">Coppia B</div>';
+      if (p){
+        rows += '<div class="p-row"><div class="ava">' + faceSVG(FACES[p.face]) + '</div>' +
+                '<div class="p-name">' + p.name + '</div>' +
+                '<div class="p-lvl">' + p.lvl + '</div></div>';
+      } else if (m.joined || m.full){
+        rows += '<div class="p-row free"><div class="ava empty">+</div>' +
+                '<div class="p-name">Posto libero</div></div>';
+      } else {
+        rows += '<button class="p-row free join-slot" data-slot="' + i + '"><div class="ava empty">+</div>' +
+                '<div class="p-name">Posto libero — unisciti qui</div></button>';
+      }
+    });
+    document.getElementById('dPlayers').innerHTML = rows;
   }
 
   document.querySelectorAll('.card[data-match]').forEach(card => {
@@ -933,8 +962,18 @@
     card.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
   });
 
+  // tap su un posto libero nel dettaglio → iscrizione in quel posto
+  document.getElementById('dPlayers').addEventListener('click', e => {
+    const btn = e.target.closest('.join-slot');
+    if (!btn) return;
+    joinSlot = parseInt(btn.dataset.slot, 10);
+    pairJoin = false;
+    openConferma();
+  });
+
   // ---- schermata 3: conferma iscrizione ----
   let pairJoin = false;
+  let joinSlot = -1;
 
   function openConferma(){
     const m = MATCHES[currentId];
@@ -950,20 +989,32 @@
       document.getElementById('cPlayers').textContent = '4 su 4 · completa';
       cCta.textContent = 'Mettimi in lista · gratis';
     } else if (pairJoin){
+      const free = [];
+      m.players.forEach((p, i) => { if (!p) free.push(i); });
+      const sameTeam = (free.includes(2) && free.includes(3)) ? 'Coppia B'
+                     : (free.includes(0) && free.includes(1)) ? 'Coppia A' : null;
       cTitle.textContent = 'Confermate i vostri 2 posti';
       document.getElementById('cPlayers').textContent =
-        m.players.length + ' su 4 · +2 con voi' + (m.players.length === 2 ? ' = completa' : '');
+        cnt(m) + ' su 4 · +2 con voi' + (cnt(m) === 2 ? ' = completa' : '') +
+        (sameTeam ? ' · insieme in ' + sameTeam : '');
       cCta.textContent = 'Conferma i nostri 2 posti · 16 €';
     } else {
+      const mate = m.players[mateIdx(joinSlot)];
+      const team = joinSlot < 2 ? 'Coppia A' : 'Coppia B';
       cTitle.textContent = 'Conferma il tuo posto';
       document.getElementById('cPlayers').textContent =
-        m.players.length + ' su 4' + (m.players.length === 3 ? ' · sei il quarto' : '');
+        team + (mate ? ' · in coppia con ' + mate.name.split(' ')[0] : ' · il compagno arriverà') +
+        (cnt(m) === 3 ? ' · sei il quarto' : '');
       cCta.textContent = 'Conferma il mio posto · 8 €';
     }
     go('conferma');
   }
 
-  document.getElementById('dCta').addEventListener('click', () => { pairJoin = false; openConferma(); });
+  document.getElementById('dCta').addEventListener('click', () => {
+    pairJoin = false;
+    joinSlot = MATCHES[currentId].players.findIndex(p => !p);
+    openConferma();
+  });
   document.getElementById('dCtaPair').addEventListener('click', () => { pairJoin = true; openConferma(); });
 
   document.getElementById('cCta').addEventListener('click', () => {
@@ -972,25 +1023,64 @@
       document.getElementById('fTitle').textContent = "Sei in lista d'attesa";
       document.getElementById('fSub').textContent =
         m.day + ', ' + m.time + ' — ' + m.venue + '. Ti avvisiamo subito se si libera un posto.';
-    } else if (pairJoin && m.players.length === 2){
-      document.getElementById('fTitle').textContent = 'Siete dentro: siete in 4!';
-      document.getElementById('fSub').textContent =
-        m.day + ', ' + m.time + ' — ' + m.venue + '. Partita confermata, vi aspettano in campo.';
-    } else if (pairJoin){
-      document.getElementById('fTitle').textContent = 'Siete dentro!';
-      document.getElementById('fSub').textContent =
-        m.day + ', ' + m.time + ' — ' + m.venue + '. Vi avvisiamo appena siete in 4.';
-    } else if (m.players.length === 3){
-      document.getElementById('fTitle').textContent = 'Sei dentro: siete in 4!';
-      document.getElementById('fSub').textContent =
-        m.day + ', ' + m.time + ' — ' + m.venue + '. Partita confermata, ti aspettano in campo.';
     } else {
-      document.getElementById('fTitle').textContent = 'Sei dentro!';
-      document.getElementById('fSub').textContent =
-        m.day + ', ' + m.time + ' — ' + m.venue + '. Ti avvisiamo appena siete in 4 e la partita è confermata.';
+      const me = {face:'simone', name:'Tu', lvl:'3.2', me:true};
+      if (pairJoin){
+        const free = [];
+        m.players.forEach((p, i) => { if (!p) free.push(i); });
+        m.players[free[0]] = me;
+        m.players[free[1]] = {face:'amico', name:'Il tuo amico', lvl:'—'};
+      } else {
+        m.players[joinSlot] = me;
+      }
+      m.joined = true;
+      if (cnt(m) === 4) m.full = true;
+      refreshHomeCard(currentId);
+      addToProssime(m);
+      const noun = pairJoin ? 'Siete' : 'Sei';
+      if (cnt(m) === 4){
+        document.getElementById('fTitle').textContent = noun + ' dentro: siete in 4!';
+        document.getElementById('fSub').textContent =
+          m.day + ', ' + m.time + ' — ' + m.venue + '. Partita confermata, ' +
+          (pairJoin ? 'vi' : 'ti') + ' aspettano in campo.';
+      } else {
+        document.getElementById('fTitle').textContent = noun + ' dentro!';
+        document.getElementById('fSub').textContent =
+          m.day + ', ' + m.time + ' — ' + m.venue + '. ' +
+          (pairJoin ? 'Vi' : 'Ti') + ' avvisiamo appena siete in 4.';
+      }
     }
     go('fatto');
   });
+
+  function refreshHomeCard(id){
+    const m = MATCHES[id];
+    const card = document.querySelector('.card[data-match="' + id + '"]');
+    if (!card) return;
+    const pl = card.querySelector('.players');
+    let html = '';
+    m.players.forEach(p => {
+      if (p) html += '<div class="ava">' + faceSVG(FACES[p.face]) + '<em>' + (p.me ? 'tu' : p.lvl) + '</em></div>';
+      else html += '<div class="ava empty">+</div>';
+    });
+    html += '<div class="gap-note" style="color:var(--ok)">' + cnt(m) + ' su 4<br>ci sei tu ✓</div>';
+    pl.innerHTML = html;
+    const btn = card.querySelector('.cta');
+    if (btn){ btn.textContent = '✓ Sei iscritto'; btn.classList.add('ghost'); }
+  }
+
+  function addToProssime(m){
+    if (m.inProssime) return;
+    m.inProssime = true;
+    const n = cnt(m);
+    document.getElementById('prossimeExtra').insertAdjacentHTML('afterbegin',
+      '<div class="card" style="cursor:default;"><div class="card-top"><div class="when">' +
+      '<div class="eyebrow">' + m.day + '</div><div class="time">' + m.time + '</div>' +
+      '<div class="venue">' + m.venue + '<small>' + m.zone + '</small></div></div>' +
+      '<div class="fascia" style="background:transparent; border:1px solid var(--line); color:' +
+      (n === 4 ? 'var(--ok)' : 'var(--muted)') + ';"><span>stato</span><b style="font-size:13px;">' +
+      (n === 4 ? 'Confermata' : 'In attesa · ' + n + ' su 4') + '</b></div></div></div>');
+  }
 
   // ---- schermata 4: vota i giocatori ----
   const V_TITLES = ["Com'è finita?", 'I tuoi avversari', 'Il tuo compagno', 'La partita', '', ''];
