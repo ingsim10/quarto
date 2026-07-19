@@ -733,18 +733,19 @@
 
         <!-- passo 5: carta complimento (facoltativa, una sola) -->
         <div id="vstep5" hidden>
-          <div class="vq">🏅 La giocata che ti ha colpito? <span style="color:var(--muted);">(una carta sola)</span></div>
+          <div class="vq">🏅 A chi dai la carta complimento? <span style="color:var(--muted);">(una sola)</span></div>
           <div class="who-row">
             <button class="opt" data-who="marco"><span class="face f32" data-face="marco"></span><span>Marco</span></button>
             <button class="opt" data-who="giulia"><span class="face f32" data-face="giulia"></span><span>Giulia</span></button>
             <button class="opt" data-who="dario"><span class="face f32" data-face="dario"></span><span>Dario</span></button>
           </div>
+          <div class="vq" id="fundQ" hidden style="margin-top:14px;">Cosa gli riusciva sempre?</div>
           <div class="fund-grid" id="fundGrid" hidden>
-            <button class="opt fund">🎯 Ricezione</button>
-            <button class="opt fund">💥 Schiacciata</button>
-            <button class="opt fund">🧱 Muro</button>
-            <button class="opt fund">🛡️ Difesa</button>
-            <button class="opt fund">🎪 Alzata</button>
+            <button class="opt fund">🎯 La ricezione</button>
+            <button class="opt fund">💥 La schiacciata</button>
+            <button class="opt fund">🧱 Il muro</button>
+            <button class="opt fund">🛡️ La difesa</button>
+            <button class="opt fund">🎪 L'alzata</button>
           </div>
           <button class="cta ghost" id="vSkipCompl" style="margin-top:14px;">Salta</button>
         </div>
@@ -1153,6 +1154,7 @@
     document.querySelectorAll('#vota .opt').forEach(o => o.classList.remove('sel'));
     S_PAIRS.flat().forEach(id => { document.getElementById(id).value = ''; });
     document.getElementById('fundGrid').hidden = true;
+    document.getElementById('fundQ').hidden = true;
     scoreChanged();
     vGo(0);
     go('vota');
@@ -1188,6 +1190,9 @@
     b.addEventListener('click', () => {
       document.querySelectorAll('#vstep5 [data-who]').forEach(o => o.classList.remove('sel'));
       b.classList.add('sel');
+      const fq = document.getElementById('fundQ');
+      fq.textContent = b.dataset.who === 'giulia' ? 'Cosa le riusciva sempre?' : 'Cosa gli riusciva sempre?';
+      fq.hidden = false;
       document.getElementById('fundGrid').hidden = false;
     });
   });
